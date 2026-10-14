@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sunset">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barkada Gala & Catch-Up Invite</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Top Control Bar (Hidden in Guest View) -->
+  <header class="top-bar" id="top-bar">
+    <div class="top-bar-left">
+      <span class="brand-badge">Gala & Hangout Planner</span>
+      <div class="preset-group">
+        <button class="btn-chip active" id="preset-gala" onclick="loadTemplate('gala')">🚗 Barkada Gala</button>
+        <button class="btn-chip" id="preset-date" onclick="loadTemplate('date')">☕ Friendly Date / Catch-Up</button>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <button class="btn-outline" onclick="toggleDrawer()">☰ Edit Details</button>
+      <button class="btn-primary" onclick="toggleGuestView(true)">👁‍🗨 Preview Invite</button>
+    </div>
+  </header>
+
+  <!-- Floating Exit Guest View Button -->
+  <button class="exit-guest-btn hidden" id="exit-guest-btn" onclick="toggleGuestView(false)">
+    🖊 Back to Editing
+  </button>
+
+  <!-- Customization Drawer -->
+  <aside class="drawer" id="custom-drawer">
+    <div class="drawer-header">
+      <h3>Edit Hangout Details</h3>
+      <button class="close-btn" onclick="toggleDrawer()">✕</button>
+    </div>
+
+    <div class="drawer-body">
+
+      </div>
+      <div class="form-section">
+        <label>Hangout Type</label>
+        <div class="preset-buttons">
+          <button type="button" class="btn-secondary" onclick="loadTemplate('gala')">🚗 Barkada Gala</button>
+          <button type="button" class="btn-secondary" onclick="loadTemplate('date')">☕ Friendly Date</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <label for="theme-select">Color Vibe</label>
+        <select id="theme-select" onchange="changeTheme(this.value)">
+          <option value="matcha">🍵 Cafe  (Chill Green)</option>
+          <option value="midnight"> 🕹️ Late Night Games (Dark Neon)</option>
+          <option value="sky">🏊🏻‍♂️ Swimming / Day Out (Ocean Blue)</option>
+          <option value="samgyup">🥢K-BBQ / Samgyup Night (Sizzling Red)</option>
+          <option value="karaoke"> 🗣 Karaoke / Night Out (Neon Pink)</option>
+          <option value="camping">🍃 Spontaneous plans (Forest & Gold)</option>
+          <option value="museum">📸 Museum / Photo Walk (Minimalist Editorial)</option>
+
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label for="input-badge">Top Tag / Status</label>
+        <input type="text" id="input-badge" value="DRAWING NO MORE! TARA NA!" oninput="updateInvitation()" />
+      </div>
+
+      <div class="form-section">
+        <label for="input-title">Gala / Hangout Title</label>
+        <input type="text" id="input-title" value="Weekend Barkada Gala & Food Trip" oninput="updateInvitation()" />
+      </div>
+
+      <div class="form-section">
+        <label for="input-tagline">The Plan / Vibe</label>
+        <textarea id="input-tagline" rows="2" oninput="updateInvitation()">Finally making it out of the group chat! Roadtrip, street food crawl, arcade, and late-night kwentuhan.</textarea>
+      </div>
+
+      <div class="form-section">
+        <label for="input-host">Organized By</label>
+        <input type="text" id="input-host" value="rahircd1019" oninput="updateInvitation()" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-section">
+          <label for="input-date">Set Date</label>
+          <input type="date" id="input-date" value="2026-10-24" onchange="updateInvitation()" />
+        </div>
+        <div class="form-section">
+          <label for="input-dress">Outfit / What to Bring</label>
+          <input type="text" id="input-dress" value="Casual Streetwear + Extra Hoodie" oninput="updateInvitation()" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-section">
+          <label for="input-start">Meetup Time</label>
+          <input type="time" id="input-start" value="14:00" onchange="updateInvitation()" />
+        </div>
+        <div class="form-section">
+          <label for="input-end">Until</label>
+          <input type="time" id="input-end" value="22:00" onchange="updateInvitation()" />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <label for="input-venue">Meetup Spot / Venue</label>
+        <input type="text" id="input-venue" value="SM Mall of Asia — By the Bay" oninput="updateInvitation()" />
+      </div>
+
+      <div class="form-section">
+        <label for="input-address">Location Address</label>
+        <input type="text" id="input-address" value="Seaside Blvd, Pasay, Metro Manila" oninput="updateInvitation()" />
+        <button type="button" class="btn-primary btn-full" onclick="saveHangoutDetails()">
+          ⛉ Save Hangout Details
+        </button>
+        <button type="button" class="btn-outline btn-full" onclick="resetHangoutDetails()">
+          ⭮ Reset to Default
+        </button>
+        <div class="drawer-actions">
+        <button type="button" class="btn-primary btn-full" onclick="saveAndShareHangout()">
+          🔗 Copy Invite Link
+        </button>
+      </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Invitation Container -->
+  <main class="invitation-wrapper">
+    <section class="invitation-card">
+      <span class="occasion-badge" id="display-badge">DRAWING NO MORE! TARA NA!</span>
+      <h1 class="event-title" id="display-title">Weekend Barkada Gala & Food Trip</h1>
+      <p class="event-tagline" id="display-tagline">
+        Finally making it out of the group chat! Roadtrip, street food crawl, arcade, and late-night kwentuhan.
+      </p>
+      <p class="event-host">Planned by <strong id="display-host">rahircd1019</strong></p>
+
+      <!-- Live Countdown -->
+      <div class="countdown-container" id="countdown">
+        <div class="time-box">
+          <span class="time-val" id="cd-days">00</span>
+          <span class="time-label">Days</span>
+        </div>
+        <div class="time-sep">:</div>
+        <div class="time-box">
+          <span class="time-val" id="cd-hours">00</span>
+          <span class="time-label">Hours</span>
+        </div>
+        <div class="time-sep">:</div>
+        <div class="time-box">
+          <span class="time-val" id="cd-mins">00</span>
+          <span class="time-label">Mins</span>
+        </div>
+        <div class="time-sep">:</div>
+        <div class="time-box">
+          <span class="time-val" id="cd-secs">00</span>
+          <span class="time-label">Secs</span>
+        </div>
+      </div>
+
+      <!-- Set Date, Time & Outfit Grid -->
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="detail-icon">🗒</span>
+          <div>
+            <h4>When</h4>
+            <p id="display-date">Monday, Oct 24, 2050</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="detail-icon">⏲︎</span>
+          <div>
+            <h4>Meetup Time</h4>
+            <p id="display-time">6:00PM - 9:00Pm</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="detail-icon">𖠋</span>
+          <div>
+            <h4>OOTD / Vibe Check</h4>
+            <p id="display-dress">Casual Streetwear + Extra Hoodie</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Actions -->
+      <div class="calendar-actions">
+        <button class="btn-outline" onclick="addToGoogleCalendar()">🗁 Save to Google Calendar</button>
+        <button class="btn-outline" onclick="downloadICS()">🡻 Download .ICS Reminder</button>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Location & Map Section -->
+      <div class="location-section">
+        <span class="section-subtitle">📍 MEETUP LOCATION</span>
+        <h2 id="display-venue">SM Mall of Asia — By the Bay</h2>
+        <p class="address-text" id="display-address">Seaside Blvd, Pasay, Metro Manila</p>
+
+        <div class="location-buttons">
+          <button class="btn-chip" onclick="copyAddress()"> 🗐  Copy Spot</button>
+          <a id="directions-link" href="#" target="_blank" rel="noopener" class="btn-chip"> 🗺  Open in Google Maps</a>
+        </div>
+
+        <div class="map-frame-container">
+          <iframe
+            id="map-iframe"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://maps.google.com/maps?q=SM%20Mall%20of%20Asia%20Seaside%20Blvd,%20Pasay,%20Metro%20Manila&t=&z=15&ie=UTF8&iwloc=&output=embed">
+          </iframe>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- RSVP Form Section -->
+      <div class="rsvp-section">
+        <span class="section-subtitle">🙋🏼‍♂️ WHO'S COMING?</span>
+        <h2>Count Me In!</h2>
+        <p class="rsvp-subtext">Lock in your attendance below so nobody backs out last minute.</p>
+
+        <form id="rsvp-form" onsubmit="submitRSVP(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rsvp-name">Your Name / Nickname *</label>
+              <input type="text" id="rsvp-name" required placeholder="e.g.,JM / Mikey" />
+            </div>
+            <div class="form-group">
+              <label for="rsvp-status">Are You G? *</label>
+              <select id="rsvp-status" required>
+                <option value="attending">🔥 G! Count me in (100% Sure)</option>
+                <option value="late">ᯓ🏃🏻‍♀️‍➡️ G, pero humabol / slightly late</option>
+                <option value="declined">😭 Pass muna (Next time!)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rsvp-guests">Bringing Anyone?</label>
+              <select id="rsvp-guests">
+                <option value="1" selected>Just Me (Solo)</option>
+                <option value="2">+1 Friend</option>
+                <option value="3">+2 Friends</option>
+                <option value="4">+3 Friends</option>
+                <option value="5">+4 Friends</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="rsvp-diet">Food Cravings / Ambag</label>
+              <input type="text" id="rsvp-diet" placeholder="e.g., Ramen, Milk tea, or I can drive!" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="rsvp-note">Shoutout or Activity Suggestion</label>
+            <textarea id="rsvp-note" rows="2" placeholder="e.g., Bawal ma-late! Let's play bowling after!"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary btn-full">Lock In Attendance ⌯⌲</button>
+        </form>
+      </div>
+
+      <!-- Attendance Board -->
+      <div class="guestbook-section">
+        <div class="guestbook-header">
+          <h3>Squad Roll Call</h3>
+          <span class="headcount-badge" id="total-headcount">2 Friends Going</span>
+        </div>
+        <div class="guest-list" id="guest-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Location copied to clipboard!</div>
+
+  <!-- JavaScript -->
+  <script src="letter.js"></script>
+</body>
+</html>
